@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>SV6 to *Tachi</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle r='100' fill='%23af42af' /%3E%3C/svg%3E" />
+</head>
+
+<body>
+  <h1>SV6 Scores XML to Tachi BATCH-MANUAL</h1>
+  <h2>Input</h2>
+  <textarea id="input"
+    placeholder="Paste scores there, one per line.
+Format: 70 3 9608737 0 3 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+    autocomplete="off"></textarea>
+  <h2>Output</h2>
+  <textarea id="output" readonly placeholder="Found scores will appear here." autocomplete="off"></textarea>
+  <br>
+  <button id="copy">Copy to clipboard</button>
+
+  <style>
+    html {
+      background-color: #202020;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #af42af;
+    }
+
+    textarea {
+      width: 500px;
+      height: 100px;
+    }
+
+    button {
+      width: 150px;
+      height: 30px;
+    }
+  </style>
+  <script>
+    const diffs = [
+      'NOV',
+      'ADV',
+      'EXH',
+      'ANY_INF',
+      'MXM',
+    ]
+
+    const lamps = [
+      ,
+      'FAILED',
+      'CLEAR',
+      'EXCESSIVE CLEAR',
+      'ULTIMATE CHAIN',
+      'PERFECT ULTIMATE CHAIN',
+    ]
+
+    document.getElementById('input').addEventListener('change', (e) => {
+      let scores = []
+      e.target.value.split('\n').forEach(line => {
+        [songId, diff, score, , clearType] = line.split(' ')
+        scores.push({
+          score: parseInt(score),
+          lamp: lamps[clearType],
+          matchType: 'sdvxInGameID',
+          identifier: songId,
+          difficulty: diffs[diff],
+        })
+      })
+
+      document.getElementById('output').value = JSON.stringify({
+        meta: {
+          game: 'sdvx',
+          service: 'Arcana',
+          playtype: 'Single',
+          version: null,
+        },
+        scores,
+      })
+    })
+
+    let copy = document.getElementById('copy')
+    let text = copy.innerText
+    copy.addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('output').value)
+      copy.innerText = '👌'
+      setTimeout(() => copy.innerText = text, 300)
+    })
+  </script>
+</body>
+
+</html>
